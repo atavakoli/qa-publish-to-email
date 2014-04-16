@@ -91,15 +91,23 @@ class qa_publish_to_email_event
 		{
 		case 'q_post':
 			$subject = $params['title'];
+			$url = qa_q_path($params['postid'], $params['title'], true);
+
 			// fall through instead of breaking
 		case 'a_post':
 			if (!isset($subject))
 				$subject = "RE: " . $params['parent']['title'];
 
+			if (!isset($url))
+				$url = qa_q_path($params['parent']['postid'], $params['parent']['title'], true, 'A', $params['postid']);
+
 			// fall through instead of breaking
 		case 'c_post':
 			if (!isset($subject))
 				$subject = "RE: " . $params['question']['title'];
+
+			if (!isset($url))
+				$url = qa_q_path($params['question']['postid'], $params['question']['title'], true, 'C', $params['postid']);
 
 			// Get the configured list of emails and split by commas/semi-colons (and possible whitespace)
 			$emails = preg_split('/[,;] */', qa_opt('plugin_publish2email_emails'), -1, PREG_SPLIT_NO_EMPTY);
@@ -122,6 +130,10 @@ class qa_publish_to_email_event
 			$mailer->FromName=(isset($user['name']) ? $user['name'] : (isset($handle) ? $handle : qa_opt('site_title')));
 			$mailer->AddReplyTo(qa_opt('from_email'), qa_opt('site_title') . ' (Do Not Reply)');
 
+			// Explicitly add the Sender (aka the "On behalf of") header, since this version of phpmailer
+			// doesn't do it (it helps with defining folder rules)
+			$mailer->AddCustomHeader('Sender:'.qa_opt('from_email'));
+
 			if (qa_opt('plugin_publish2email_use_bcc'))
 			{
 				foreach ($emails as $email)
@@ -142,13 +154,13 @@ class qa_publish_to_email_event
 			if ($params['format'] === 'html' && !qa_opt('plugin_publish2email_plaintext_only'))
 			{
 				$mailer->IsHTML(true);
-				$mailer->Body=$params['content'];
-				$mailer->AltBody=$params['text'];
+				$mailer->Body=$params['content'].'<hr><p><strong>Reply at <a href="'.$url.'">this link</a>.</strong></p>';
+				$mailer->AltBody=$params['text']."\n\n===\n\nReply at this link:\n".$url;
 			}
 			else
 			{
 				$mailer->IsHTML(false);
-				$mailer->Body=$params['text'];
+				$mailer->Body=$params['text']."\n\n===\n\nReply at this link:\n".$url;
 			}
 
 			if (qa_opt('smtp_active'))
