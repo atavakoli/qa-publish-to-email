@@ -83,6 +83,10 @@ class qa_publish_to_email_event
 			$subject = $params['title'];
 			// fall through instead of breaking
 		case 'a_post':
+			if (!isset($subject))
+				$subject = "RE: " . $params['parent']['title'];
+
+			// fall through instead of breaking
 		case 'c_post':
 			if (!isset($subject))
 				$subject = "RE: " . $params['question']['title'];
