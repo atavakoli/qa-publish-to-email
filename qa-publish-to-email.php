@@ -23,6 +23,9 @@ class qa_publish_to_email_event
 
 		if ($option == 'plugin_publish2email_use_bcc')
 			return false;
+
+		if ($option == 'plugin_publish2email_plaintext_only')
+			return false;
 	}
 
 	function admin_form(&$qa_content)
@@ -43,7 +46,7 @@ class qa_publish_to_email_event
 
 			'fields' => array(
 				array(
-					'label' => 'Notification Emails:',
+					'label' => 'Notification email addresses:',
 					'type' => 'text',
 					'value' => qa_opt('plugin_publish2email_emails'),
 					'suffix' => '(separate multiple emails with commas or semicolons)',
@@ -112,8 +115,8 @@ class qa_publish_to_email_event
 			$mailer->CharSet='utf-8';
 
 			$mailer->Sender=qa_opt('from_email');
-			$mailer->From=qa_opt('from_email');
-			$mailer->FromName=(isset($handle) ? $handle : qa_opt('site_title'));
+			$mailer->From=(isset($params['email']) ? $params['email'] : qa_opt('from_email'));
+			$mailer->FromName=(isset($params['name']) ? $params['name'] : (isset($handle) ? $handle : qa_opt('site_title')));
 
 			if (qa_opt('plugin_publish2email_use_bcc'))
 			{
