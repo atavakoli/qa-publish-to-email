@@ -18,6 +18,9 @@ class qa_publish_to_email_event
 		if ($option == 'plugin_publish2email_emails')
 			return '';
 
+		if ($option == 'plugin_publish2email_subject_prefix')
+			return '[Q2A]';
+
 		if ($option == 'plugin_publish2email_fav_categories_only')
 			return false;
 
@@ -38,6 +41,7 @@ class qa_publish_to_email_event
 		if (qa_clicked('plugin_publish2email_save_button'))
 		{
 			qa_opt('plugin_publish2email_emails', qa_post_text('plugin_publish2email_emails_field'));
+			qa_opt('plugin_publish2email_subject_prefix', qa_post_text('plugin_publish2email_subject_prefix_field'));
 			qa_opt('plugin_publish2email_fav_categories_only', (int)qa_post_text('plugin_publish2email_fav_cats_field'));
 			qa_opt('plugin_publish2email_use_bcc', (int)qa_post_text('plugin_publish2email_use_bcc_field'));
 			qa_opt('plugin_publish2email_plaintext_only', (int)qa_post_text('plugin_publish2email_plaintext_only_field'));
@@ -55,6 +59,13 @@ class qa_publish_to_email_event
 					'value' => qa_opt('plugin_publish2email_emails'),
 					'suffix' => '(separate multiple emails with commas or semicolons)',
 					'tags' => 'NAME="plugin_publish2email_emails_field"',
+				),
+				array(
+					'label' => 'Notification email subject prefix:',
+					'type' => 'text',
+					'value' => qa_opt('plugin_publish2email_subject_prefix'),
+					'suffix' => 'This is inserted before the subject (but after the "RE: " for answers/comments)',
+					'tags' => 'NAME="plugin_publish2email_subject_prefix_field"',
 				),
 				array(
 					'label' => 'Only send emails for favorite categories (email addresses must be registered)',
@@ -97,16 +108,20 @@ class qa_publish_to_email_event
 		require_once QA_INCLUDE_DIR.'qa-app-format.php';
 		require_once QA_INCLUDE_DIR.'qa-util-string.php';
 
+		$subject_prefix=trim(qa_opt('plugin_publish2email_subject_prefix'));
+		if (!empty($subject_prefix))
+			$subject_prefix.=' ';
+
 		switch ($event)
 		{
 		case 'q_post':
-			$subject = $params['title'];
+			$subject = $subject_prefix.$params['title'];
 			$url = qa_q_path($params['postid'], $params['title'], true);
 
 			// fall through instead of breaking
 		case 'a_post':
 			if (!isset($subject))
-				$subject = "RE: " . $params['parent']['title'];
+				$subject = "RE: ".$subject_prefix.$params['parent']['title'];
 
 			if (!isset($url))
 				$url = qa_q_path($params['parent']['postid'], $params['parent']['title'], true, 'A', $params['postid']);
@@ -114,7 +129,7 @@ class qa_publish_to_email_event
 			// fall through instead of breaking
 		case 'c_post':
 			if (!isset($subject))
-				$subject = "RE: " . $params['question']['title'];
+				$subject = "RE: ".$subject_prefix.$params['question']['title'];
 
 			if (!isset($url))
 				$url = qa_q_path($params['question']['postid'], $params['question']['title'], true, 'C', $params['postid']);
@@ -303,7 +318,9 @@ class qa_publish_to_email_event
 			}
 		}
 
-		return $body.$this->qa_format_footer("View the entire conversation or reply at ", "this link", $url, $ishtml);
+		$body.=$this->qa_format_footer("View the entire conversation or reply at ", "this link", $url, $ishtml);
+
+		return $body;
 	}
 
 };
