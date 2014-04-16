@@ -34,6 +34,7 @@ class qa_publish_to_email_event
 			qa_opt('plugin_publish2email_emails', qa_post_text('plugin_publish2email_emails_field'));
 			qa_opt('plugin_publish2email_fav_categories_only', (int)qa_post_text('plugin_publish2email_fav_cats_field'));
 			qa_opt('plugin_publish2email_use_bcc', (int)qa_post_text('plugin_publish2email_use_bcc_field'));
+			qa_opt('plugin_publish2email_plaintext_only', (int)qa_post_text('plugin_publish2email_plaintext_only_field'));
 			$saved = true;
 		}
 
@@ -55,10 +56,16 @@ class qa_publish_to_email_event
 					'tags' => 'NAME="plugin_publish2email_fav_cats_field"',
 				),
 				array(
-					'label' => 'Use BCC instead of To for emails',
+					'label' => 'Use Bcc instead of To for emails',
 					'type' => 'checkbox',
 					'value' => qa_opt('plugin_publish2email_use_bcc'),
 					'tags' => 'NAME="plugin_publish2email_use_bcc_field"',
+				),
+				array(
+					'label' => 'Send emails as plain-text',
+					'type' => 'checkbox',
+					'value' => qa_opt('plugin_publish2email_plaintext_only'),
+					'tags' => 'NAME="plugin_publish2email_plaintext_only_field"',
 				),
 			),
 
@@ -98,7 +105,7 @@ class qa_publish_to_email_event
 				return;
 
 			// Filter for emails that have this post's category as favorite
-			if (qa_opt('plug_publish2email_fav_categories_only'))
+			if (qa_opt('plugin_publish2email_fav_categories_only'))
 				$emails = $this->qa_db_favorite_category_emails($emails, $params['categoryid']);
 
 			$mailer=new PHPMailer();
@@ -108,7 +115,7 @@ class qa_publish_to_email_event
 			$mailer->From=qa_opt('from_email');
 			$mailer->FromName=(isset($handle) ? $handle : qa_opt('site_title'));
 
-			if (qa_opt('qa_publish2email_use_bcc'))
+			if (qa_opt('plugin_publish2email_use_bcc'))
 			{
 				foreach ($emails as $email)
 				{
@@ -125,7 +132,7 @@ class qa_publish_to_email_event
 
 			$mailer->Subject=$subject;
 
-			if ($params['format'] === 'html')
+			if ($params['format'] === 'html' && !qa_opt('plugin_publish2email_plaintext_only'))
 			{
 			        $mailer->IsHTML(true);
 				$mailer->Body=$params['content'];
