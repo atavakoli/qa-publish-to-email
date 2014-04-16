@@ -45,14 +45,20 @@ class qa_publish_to_email_event
 					'label' => 'Notification Emails:',
 					'type' => 'text',
 					'value' => qa_opt('plugin_publish2email_emails'),
-					'suffix' => '(separate multiple emails with , or ;)',
+					'suffix' => '(separate multiple emails with commas or semicolons)',
 					'tags' => 'NAME="plugin_publish2email_emails_field"',
 				),
 				array(
-					'label' => 'Only send emails for favorite categories:',
+					'label' => 'Only send emails for favorite categories',
 					'type' => 'checkbox',
 					'value' => qa_opt('plugin_publish2email_fav_categories_only'),
 					'tags' => 'NAME="plugin_publish2email_fav_cats_field"',
+				),
+				array(
+					'label' => 'Use BCC instead of To for emails',
+					'type' => 'checkbox',
+					'value' => qa_opt('plugin_publish2email_use_bcc'),
+					'tags' => 'NAME="plugin_publish2email_use_bcc_field"',
 				),
 			),
 
