@@ -21,7 +21,7 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 qa_register_plugin_module(
 	'event',
 	'qa-publish-to-email.php',
-	'qa_publish_to_email',
+	'qa_publish_to_email_event',
 	'Publish To Email'
 );
 
