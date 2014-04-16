@@ -34,6 +34,11 @@ class qa_publish_to_email_event
 			// Get the configured list of emails and split by commas/semi-colons (and possible whitespace)
 			$emails = preg_split('/[,;] */', qa_opt('plugin_publish2email_emails'), -1, PREG_SPLIT_NO_EMPTY);
 
+			if (count($emails) == 0)
+			{
+				return;
+			}
+
 			if (qa_opt('plug_publish2email_favorite_categories'))
 			{
 				// Filter for emails that have this post's category as favorite
