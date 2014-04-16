@@ -18,6 +18,18 @@ class qa_publish_to_email_event
 		if ($option == 'plugin_publish2email_emails')
 			return '';
 
+		if ($option == 'plugin_publish2email_notify_q_post')
+			return true;
+
+		if ($option == 'plugin_publish2email_notify_a_post')
+			return true;
+
+		if ($option == 'plugin_publish2email_notify_c_post')
+			return true;
+
+		if ($option == 'plugin_publish2email_show_trail')
+			return true;
+
 		if ($option == 'plugin_publish2email_subject_prefix')
 			return '[Q2A]';
 
@@ -41,6 +53,9 @@ class qa_publish_to_email_event
 		if (qa_clicked('plugin_publish2email_save_button'))
 		{
 			qa_opt('plugin_publish2email_emails', qa_post_text('plugin_publish2email_emails_field'));
+			qa_opt('plugin_publish2email_notify_q_post', (int)qa_post_text('plugin_publish2email_notify_q_post_field'));
+			qa_opt('plugin_publish2email_notify_a_post', (int)qa_post_text('plugin_publish2email_notify_a_post_field'));
+			qa_opt('plugin_publish2email_notify_c_post', (int)qa_post_text('plugin_publish2email_notify_c_post_field'));
 			qa_opt('plugin_publish2email_subject_prefix', qa_post_text('plugin_publish2email_subject_prefix_field'));
 			qa_opt('plugin_publish2email_fav_categories_only', (int)qa_post_text('plugin_publish2email_fav_cats_field'));
 			qa_opt('plugin_publish2email_use_bcc', (int)qa_post_text('plugin_publish2email_use_bcc_field'));
@@ -59,6 +74,24 @@ class qa_publish_to_email_event
 					'value' => qa_opt('plugin_publish2email_emails'),
 					'suffix' => '(separate multiple emails with commas or semicolons)',
 					'tags' => 'NAME="plugin_publish2email_emails_field"',
+				),
+				array(
+					'label' => 'Send notifications for new questions',
+					'type' => 'checkbox',
+					'value' => qa_opt('plugin_publish2email_notify_q_post'),
+					'tags' => 'NAME="plugin_publish2email_notify_q_post_field"',
+				),
+				array(
+					'label' => 'Send notifications for new answers',
+					'type' => 'checkbox',
+					'value' => qa_opt('plugin_publish2email_notify_a_post'),
+					'tags' => 'NAME="plugin_publish2email_notify_a_post_field"',
+				),
+				array(
+					'label' => 'Send notifications for new comments',
+					'type' => 'checkbox',
+					'value' => qa_opt('plugin_publish2email_notify_c_post'),
+					'tags' => 'NAME="plugin_publish2email_notify_c_post_field"',
 				),
 				array(
 					'label' => 'Notification email subject prefix:',
@@ -115,11 +148,18 @@ class qa_publish_to_email_event
 		switch ($event)
 		{
 		case 'q_post':
+			if (!qa_opt('plugin_publish2email_notify_q_post'))
+				return;
+
 			$subject = $subject_prefix.$params['title'];
 			$url = qa_q_path($params['postid'], $params['title'], true);
 
 			// fall through instead of breaking
 		case 'a_post':
+			// Explicitly check $event in case we fell through from q_post
+			if ($event === 'a_post' && !qa_opt('plugin_publish2email_notify_a_post'))
+				return;
+
 			if (!isset($subject))
 				$subject = "RE: ".$subject_prefix.$params['parent']['title'];
 
@@ -128,6 +168,10 @@ class qa_publish_to_email_event
 
 			// fall through instead of breaking
 		case 'c_post':
+			// Explicitly check $event in case we fell through from q_post or a_post
+			if ($event === 'c_post' && !qa_opt('plugin_publish2email_notify_c_post'))
+				return;
+
 			if (!isset($subject))
 				$subject = "RE: ".$subject_prefix.$params['question']['title'];
 
