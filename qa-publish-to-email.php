@@ -107,6 +107,9 @@ class qa_publish_to_email_event
 			if (count($emails) == 0)
 				return;
 
+			// Get the poster's info
+			$user=$this->qa_db_userinfo($userid);
+
 			// Filter for emails that have this post's category as favorite
 			if (qa_opt('plugin_publish2email_fav_categories_only'))
 				$emails = $this->qa_db_favorite_category_emails($emails, $params['categoryid']);
@@ -115,8 +118,9 @@ class qa_publish_to_email_event
 			$mailer->CharSet='utf-8';
 
 			$mailer->Sender=qa_opt('from_email');
-			$mailer->From=(isset($params['email']) ? $params['email'] : qa_opt('from_email'));
-			$mailer->FromName=(isset($params['name']) ? $params['name'] : (isset($handle) ? $handle : qa_opt('site_title')));
+			$mailer->From=(isset($user['email']) ? $user['email'] : qa_opt('from_email'));
+			$mailer->FromName=(isset($user['name']) ? $user['name'] : (isset($handle) ? $handle : qa_opt('site_title')));
+			$mailer->AddReplyTo(qa_opt('from_email'), qa_opt('site_title') . ' (Do Not Reply)');
 
 			if (qa_opt('plugin_publish2email_use_bcc'))
 			{
@@ -137,12 +141,13 @@ class qa_publish_to_email_event
 
 			if ($params['format'] === 'html' && !qa_opt('plugin_publish2email_plaintext_only'))
 			{
-			        $mailer->IsHTML(true);
+				$mailer->IsHTML(true);
 				$mailer->Body=$params['content'];
+				$mailer->AltBody=$params['text'];
 			}
 			else
 			{
-			        $mailer->IsHTML(false);
+				$mailer->IsHTML(false);
 				$mailer->Body=$params['text'];
 			}
 
@@ -167,10 +172,26 @@ class qa_publish_to_email_event
 		}
 	}
 
+	function qa_db_userinfo($userid)
+	{
+		require_once QA_INCLUDE_DIR.'qa-db-selects.php';
+
+		list($user,$useremail) = qa_db_select_with_pending(
+			qa_db_user_profile_selectspec($userid, true),
+			array(
+				'columns' => array('email' => '^users.email'),
+				'source' => "^users WHERE ^users.userid=$",
+				'arguments' => array($userid),
+			));
+		$user['email'] = @$useremail[0]['email'];
+
+		return $user;
+	}
+
 	function qa_db_category_favorite_emails($emails, $categoryid)
 	{
 		require_once QA_INCLUDE_DIR.'qa-app-updates.php';
-                require_once QA_INCLUDE_DIR.'qa-db-selects.php';
+		require_once QA_INCLUDE_DIR.'qa-db-selects.php';
 
 		return qa_db_select_with_pending(array(
 			'columns' => array('email' => 'DISTINCT ^users.email'),
