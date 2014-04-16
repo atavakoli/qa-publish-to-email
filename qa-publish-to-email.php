@@ -53,7 +53,7 @@ class qa_publish_to_email_event
 					'tags' => 'NAME="plugin_publish2email_emails_field"',
 				),
 				array(
-					'label' => 'Only send emails for favorite categories (emails must be registered)',
+					'label' => 'Only send emails for favorite categories (email addresses must be registered)',
 					'type' => 'checkbox',
 					'value' => qa_opt('plugin_publish2email_fav_categories_only'),
 					'tags' => 'NAME="plugin_publish2email_fav_cats_field"',
