@@ -13,6 +13,58 @@
 
 class qa_publish_to_email_event
 {
+	function option_default($option)
+	{
+		if ($option == 'plugin_publish2email_emails')
+			return '';
+
+		if ($option == 'plugin_publish2email_fav_categories_only')
+			return false;
+
+		if ($option == 'plugin_publish2email_use_bcc')
+			return false;
+	}
+
+	function admin_form(&$qa_content)
+	{
+		$saved = false;
+
+		if (qa_clicked('plugin_publish2email_save_button'))
+		{
+			qa_opt('plugin_publish2email_emails', qa_post_text('plugin_publish2email_emails_field'));
+			qa_opt('plugin_publish2email_fav_categories_only', (int)qa_post_text('plugin_publish2email_fav_cats_field'));
+			qa_opt('plugin_publish2email_use_bcc', (int)qa_post_text('plugin_publish2email_use_bcc_field'));
+			$saved = true;
+		}
+
+		return array(
+			'ok' => $saved ? 'Settings saved' : null,
+
+			'fields' => array(
+				array(
+					'label' => 'Notification Emails:',
+					'type' => 'text',
+					'value' => qa_opt('plugin_publish2email_emails'),
+					'suffix' => '(separate multiple emails with , or ;)',
+					'tags' => 'NAME="plugin_publish2email_emails_field"',
+				),
+				array(
+					'label' => 'Only send emails for favorite categories:',
+					'type' => 'checkbox',
+					'value' => qa_opt('plugin_publish2email_fav_categories_only'),
+					'tags' => 'NAME="plugin_publish2email_fav_cats_field"',
+				),
+			),
+
+			'buttons' => array(
+				array(
+					'label' => 'Save Changes',
+					'tags' => 'NAME="plugin_publish2email_save_button"',
+				),
+			),
+		);
+	}
+
 	function process_event($event, $userid, $handle, $cookieid, $params)
 	{
 		require_once QA_INCLUDE_DIR.'qa-class.phpmailer.php';
@@ -27,23 +79,17 @@ class qa_publish_to_email_event
 		case 'a_post':
 		case 'c_post':
 			if (!isset($subject))
-			{
 				$subject = "RE: " . $params['question']['title'];
-			}
 
 			// Get the configured list of emails and split by commas/semi-colons (and possible whitespace)
 			$emails = preg_split('/[,;] */', qa_opt('plugin_publish2email_emails'), -1, PREG_SPLIT_NO_EMPTY);
 
 			if (count($emails) == 0)
-			{
 				return;
-			}
 
-			if (qa_opt('plug_publish2email_favorite_categories'))
-			{
-				// Filter for emails that have this post's category as favorite
+			// Filter for emails that have this post's category as favorite
+			if (qa_opt('plug_publish2email_fav_categories_only'))
 				$emails = $this->qa_db_favorite_category_emails($emails, $params['categoryid']);
-			}
 
 			$mailer=new PHPMailer();
 			$mailer->CharSet='utf-8';
@@ -88,9 +134,7 @@ class qa_publish_to_email_event
 			}
 
 			if (qa_opt('smtp_secure'))
-			{
 				$mailer->SMTPSecure=qa_opt('smtp_secure');
-			}
 
 			if (qa_opt('smtp_authenticate'))
 			{
