@@ -2,15 +2,15 @@
 
 /*
 	Plugin Name: Publish To Email
-	Plugin URI: http://gitlab.cs.sandvine.com/staff-engineers/q2a-plugins
-	Plugin Description: Sends email for all questions/answers/comments with full text
+	Plugin URI: https://github.com/atavakoli/qa-publish-to-email
+	Plugin Description: Email posts to configured emails.
 	Plugin Version: 0.1
 	Plugin Date: 2014-04-14
 	Plugin Author: Ali Tavakoli
 	Plugin Author URI: https://github.com/atavakoli
-	Plugin License: MIT License
+	Plugin License: MIT
 	Plugin Minimum Question2Answer Version: 1.6
-	Plugin Update Check URI: 
+	Plugin Update Check URI: https://raw.githubusercontent.com/atavakoli/qa-publish-to-email/master/qa-plugin.php
 */
 
 if (!defined('QA_VERSION')) { // don't allow this page to be requested directly from browser
@@ -20,7 +20,7 @@ if (!defined('QA_VERSION')) { // don't allow this page to be requested directly 
 
 qa_register_plugin_module(
 	'event',
-	'publish-to-email.php',
+	'qa-publish-to-email.php',
 	'qa_publish_to_email',
 	'Publish To Email'
 );
