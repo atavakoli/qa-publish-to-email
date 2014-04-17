@@ -42,6 +42,12 @@ class qa_publish_to_email_event
 		if ($option == 'plugin_publish2email_plaintext_only')
 			return false;
 
+		if ($option == 'plugin_publish2email_html_theme')
+		{
+			$sitetheme=qa_opt('site_theme');
+			return (empty($sitetheme) ? 'Classic': $sitetheme);
+		}
+
 		if ($option == 'plugin_publish2email_show_trail')
 			return true;
 	}
@@ -59,10 +65,14 @@ class qa_publish_to_email_event
 			qa_opt('plugin_publish2email_subject_prefix', qa_post_text('plugin_publish2email_subject_prefix_field'));
 			qa_opt('plugin_publish2email_fav_categories_only', (int)qa_post_text('plugin_publish2email_fav_cats_field'));
 			qa_opt('plugin_publish2email_use_bcc', (int)qa_post_text('plugin_publish2email_use_bcc_field'));
-			qa_opt('plugin_publish2email_plaintext_only', (int)qa_post_text('plugin_publish2email_plaintext_only_field'));
+			qa_opt('plugin_publish2email_plaintext_only', qa_post_text('plugin_publish2email_plaintext_only_field'));
+			qa_opt('plugin_publish2email_html_theme', qa_post_text('plugin_publish2email_html_theme_field'));
 			qa_opt('plugin_publish2email_show_trail', (int)qa_post_text('plugin_publish2email_show_trail_field'));
 			$saved = true;
 		}
+
+
+		$themeoptions=qa_admin_theme_options();
 
 		return array(
 			'ok' => $saved ? 'Settings saved' : null,
@@ -113,10 +123,18 @@ class qa_publish_to_email_event
 					'tags' => 'NAME="plugin_publish2email_use_bcc_field"',
 				),
 				array(
-					'label' => 'Send emails as plain-text',
+					'label' => 'Send all emails as plain-text',
 					'type' => 'checkbox',
 					'value' => qa_opt('plugin_publish2email_plaintext_only'),
 					'tags' => 'NAME="plugin_publish2email_plaintext_only_field"',
+				),
+				array(
+					'label' => 'Theme for HTML emails:',
+					'type' => 'select',
+					'value' => qa_opt('plugin_publish2email_html_theme'),
+					'options' => $themeoptions,
+					'suffix' => 'This setting is ignored for plain-text emails',
+					'tags' => 'NAME="plugin_publish2email_html_theme_field"',
 				),
 				array(
 					'label' => 'Include dependent posts in email body (e.g. include questions when sending emails for answers)',
@@ -319,7 +337,7 @@ class qa_publish_to_email_event
 	function qa_format_header($preamble, $title, $ishtml)
 	{
 		if ($ishtml)
-			return '<hr><h2>'.$preamble.'</h2><h3>'.qa_html($title).'</h3>';
+			return '<hr><h1>'.$preamble.'</h1><h2>'.qa_html($title).'</h2>';
 		else
 			return "\n\n===\n\n".$preamble."\n\n".$title."\n\n";
 	}
@@ -334,7 +352,12 @@ class qa_publish_to_email_event
 
 	function qa_build_body($event, $url, $params, $ishtml)
 	{
-		$body=$this->qa_format_post($params, $ishtml);
+		if ($ishtml)
+			$body='<div class="publish2email-body">';
+		else
+			$body='';
+
+		$body.=$this->qa_format_post($params, $ishtml);
 
 		if (qa_opt('plugin_publish2email_show_trail'))
 		{
@@ -363,6 +386,19 @@ class qa_publish_to_email_event
 		}
 
 		$body.=$this->qa_format_footer("View the entire conversation or reply at ", "this link", $url, $ishtml);
+
+		if ($ishtml)
+		{
+			$body.='</div>';
+
+			$themefile=QA_THEME_DIR.qa_opt('plugin_publish2email_html_theme').'/qa-styles.css';
+			if (file_exists($themefile))
+			{
+				$body.='<style>'.file_get_contents($themefile);
+				$body.='div.publish2email-body {margin:20px; text-align:left;}';
+				$body.='</style>';
+			}
+		}
 
 		return $body;
 	}
