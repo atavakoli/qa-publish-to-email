@@ -4,13 +4,13 @@
 	Plugin Name: Publish To Email
 	Plugin URI: https://github.com/atavakoli/qa-publish-to-email
 	Plugin Description: Email posts to configured emails.
-	Plugin Version: 0.1
-	Plugin Date: 2014-04-14
+	Plugin Version: 1.0
+	Plugin Date: 2014-04-18
 	Plugin Author: Ali Tavakoli
 	Plugin Author URI: https://github.com/atavakoli
 	Plugin License: MIT
 	Plugin Minimum Question2Answer Version: 1.6
-	Plugin Update Check URI: https://raw.githubusercontent.com/atavakoli/qa-publish-to-email/master/qa-plugin.php
+	Plugin Update Check URI: https://raw.githubusercontent.com/atavakoli/qa-publish-to-email/stable/qa-plugin.php
 */
 
 if (!defined('QA_VERSION')) { // don't allow this page to be requested directly from browser
