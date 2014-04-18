@@ -21,6 +21,8 @@ Features
 - Customized styles for HTML emails, using deployed themes or custom CSS files
 - Include content of other posts in the emails (e.g. answers can include the
   original question; comments can include their parent and the parent question)
+- Limit notifications to categories favorited by the owners of each notification
+  email
 
 More to come!
 
