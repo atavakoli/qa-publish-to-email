@@ -10,7 +10,7 @@
 	Plugin Author URI: https://github.com/atavakoli
 	Plugin License: MIT
 	Plugin Minimum Question2Answer Version: 1.6
-	Plugin Update Check URI: https://raw.githubusercontent.com/atavakoli/qa-publish-to-email/master/qa-plugin.php
+	Plugin Update Check URI: https://raw.githubusercontent.com/atavakoli/qa-publish-to-email/stable/qa-plugin.php
 */
 
 if (!defined('QA_VERSION')) { // don't allow this page to be requested directly from browser
