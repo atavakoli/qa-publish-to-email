@@ -1,0 +1,6 @@
+Custom CSS Styles
+#################
+
+Add or link to .css files to this folder and they will be selectable as HTML
+themes in the plugin's configuration form, which can be used to style HTML
+emails.

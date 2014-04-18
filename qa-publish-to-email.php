@@ -52,6 +52,26 @@ class qa_publish_to_email_event
 			return true;
 	}
 
+	function qa_theme_options()
+	{
+		$options=qa_admin_theme_options();
+
+		// check for custom .css files
+		$directory=@opendir(QA_PLUGIN_DIR.'qa-publish-to-email/custom-styles/');
+		if (is_resource($directory)) {
+			while (($filename=readdir($directory)) !== false)
+			{
+				// not a hidden file (doesn't start with .) and is a .css file
+				$filenameparts=explode('.', $filename);
+				if (!empty($filenameparts[0]) && strtolower($filenameparts[count($filenameparts)-1]) === 'css')
+					$options[$filename]='Custom - '.$filename;
+			}
+			closedir($directory);
+		}
+
+		return $options;
+	}
+
 	function admin_form(&$qa_content)
 	{
 		$saved = false;
@@ -72,7 +92,7 @@ class qa_publish_to_email_event
 		}
 
 
-		$themeoptions=qa_admin_theme_options();
+		$themeoptions=$this->qa_theme_options();
 
 		return array(
 			'ok' => $saved ? 'Settings saved' : null,
@@ -131,7 +151,7 @@ class qa_publish_to_email_event
 				array(
 					'label' => 'Theme for HTML emails:',
 					'type' => 'select',
-					'value' => qa_opt('plugin_publish2email_html_theme'),
+					'value' => @$themeoptions[qa_opt('plugin_publish2email_html_theme')],
 					'options' => $themeoptions,
 					'suffix' => 'This setting is ignored for plain-text emails',
 					'tags' => 'NAME="plugin_publish2email_html_theme_field"',
@@ -353,7 +373,7 @@ class qa_publish_to_email_event
 	function qa_build_body($event, $url, $params, $ishtml)
 	{
 		if ($ishtml)
-			$body='<div class="publish2email-body">';
+			$body='<!DOCTYPE html><html><head></head><body><div class="publish2email-body">';
 		else
 			$body='';
 
@@ -389,15 +409,17 @@ class qa_publish_to_email_event
 
 		if ($ishtml)
 		{
-			$body.='</div>';
+			$body.='</div></body>';
 
-			$themefile=QA_THEME_DIR.qa_opt('plugin_publish2email_html_theme').'/qa-styles.css';
-			if (file_exists($themefile))
+			if (file_exists($themefile=QA_THEME_DIR.qa_opt('plugin_publish2email_html_theme').'/qa-styles.css') ||
+			    file_exists($themefile=QA_PLUGIN_DIR.'qa-publish-to-email/custom-styles/'.qa_opt('plugin_publish2email_html_theme')))
 			{
-				$body.='<style>'.file_get_contents($themefile);
+				$body.='<footer><style>'.file_get_contents($themefile);
 				$body.='div.publish2email-body {margin:20px; text-align:left;}';
-				$body.='</style>';
+				$body.='</style></footer>';
 			}
+
+			$body.='</html>';
 		}
 
 		return $body;
