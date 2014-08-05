@@ -346,7 +346,7 @@ class qa_publish_to_email_event
 			if ($params['format'] === 'html')
 				return $params['content'];
 			else
-				return '<pre>'.$text.'</pre>';
+				return '<pre>'.htmlspecialchars($text).'</pre>';
 		}
 		else
 		{
