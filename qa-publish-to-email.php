@@ -336,6 +336,8 @@ class qa_publish_to_email_event
 
 	function qa_format_post($params, $ishtml)
 	{
+		require_once QA_INCLUDE_DIR.'qa-app-posts.php';
+
 		if (isset($params['text']))
 			$text = $params['text'];
 		else
