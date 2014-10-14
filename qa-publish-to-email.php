@@ -85,7 +85,7 @@ class qa_publish_to_email_event
 			qa_opt('plugin_publish2email_subject_prefix', qa_post_text('plugin_publish2email_subject_prefix_field'));
 			qa_opt('plugin_publish2email_fav_categories_only', (int)qa_post_text('plugin_publish2email_fav_cats_field'));
 			qa_opt('plugin_publish2email_use_bcc', (int)qa_post_text('plugin_publish2email_use_bcc_field'));
-			qa_opt('plugin_publish2email_plaintext_only', qa_post_text('plugin_publish2email_plaintext_only_field'));
+			qa_opt('plugin_publish2email_plaintext_only', (int)qa_post_text('plugin_publish2email_plaintext_only_field'));
 			qa_opt('plugin_publish2email_html_theme', qa_post_text('plugin_publish2email_html_theme_field'));
 			qa_opt('plugin_publish2email_show_trail', (int)qa_post_text('plugin_publish2email_show_trail_field'));
 			$saved = true;
@@ -336,6 +336,8 @@ class qa_publish_to_email_event
 
 	function qa_format_post($params, $ishtml)
 	{
+		require_once QA_INCLUDE_DIR.'qa-app-posts.php';
+
 		if (isset($params['text']))
 			$text = $params['text'];
 		else
@@ -346,7 +348,7 @@ class qa_publish_to_email_event
 			if ($params['format'] === 'html')
 				return $params['content'];
 			else
-				return '<pre>'.$text.'</pre>';
+				return '<pre>'.htmlspecialchars($text).'</pre>';
 		}
 		else
 		{
