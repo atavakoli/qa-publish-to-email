@@ -85,7 +85,7 @@ class qa_publish_to_email_event
 			qa_opt('plugin_publish2email_subject_prefix', qa_post_text('plugin_publish2email_subject_prefix_field'));
 			qa_opt('plugin_publish2email_fav_categories_only', (int)qa_post_text('plugin_publish2email_fav_cats_field'));
 			qa_opt('plugin_publish2email_use_bcc', (int)qa_post_text('plugin_publish2email_use_bcc_field'));
-			qa_opt('plugin_publish2email_plaintext_only', qa_post_text('plugin_publish2email_plaintext_only_field'));
+			qa_opt('plugin_publish2email_plaintext_only', (int)qa_post_text('plugin_publish2email_plaintext_only_field'));
 			qa_opt('plugin_publish2email_html_theme', qa_post_text('plugin_publish2email_html_theme_field'));
 			qa_opt('plugin_publish2email_show_trail', (int)qa_post_text('plugin_publish2email_show_trail_field'));
 			$saved = true;
