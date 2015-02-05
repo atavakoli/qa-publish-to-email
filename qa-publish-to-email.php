@@ -194,19 +194,22 @@ class qa_publish_to_email_event
 			$mailer=new PHPMailer();
 			$mailer->CharSet='utf-8';
 
-                        $pfx = md5(qa_opt('site_url'));
+                        $pfx = md5(qa_opt('site_name'));
+                        $emailParts = explode('@',qa_opt('from_email'));
+                        $sfx = "@".$emailParts[sizeof($emailParts)-1];
 
-                        $msgID = $pfx . "." . $params['postid'];
+                        $msgID = $pfx . "." . $params['postid'] . $sfx;
 
                         if(isset($params['parentid'])) {
-                          $inReplyTo = $pfx . "." . $params['parentid'];
+                          $inReplyTo = $pfx . "." . $params['parentid'] . $sfx;
                           $mailer->AddCustomHeader('In-Reply-To:'.$inReplyTo);
-                          $refList = $inReplyTo;
-                          if(strcmp($params['parenttype'],'A')==0) {
-                            $qRef = $pfx . "." . $params['questionid'];
-                            $refList .= " " . $qRef;
+                          $refList = array();
+                          if(isset($params['parenttype']) && strcmp($params['parenttype'],'A')==0) {
+                            $qRef = $pfx . "." . $params['questionid'] . $sfx;
+                            $refList[] = $qRef;
                           }
-                          $mailer->AddCustomHeader('References:'.$refList);
+                          $refList[] = $inReplyTo;
+                          $mailer->AddCustomHeader('References:'.implode(',',$refList));
                         }
                         $mailer->MessageID=$msgID;
 			$mailer->Sender=qa_opt('from_email');
