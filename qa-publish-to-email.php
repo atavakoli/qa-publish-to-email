@@ -194,6 +194,21 @@ class qa_publish_to_email_event
 			$mailer=new PHPMailer();
 			$mailer->CharSet='utf-8';
 
+                        $pfx = md5(qa_opt('site_url'));
+
+                        $msgID = $pfx . "." . $params['postid'];
+
+                        if(isset($params['parentid'])) {
+                          $inReplyTo = $pfx . "." . $params['parentid'];
+                          $mailer->AddCustomHeader('In-Reply-To:'.$inReplyTo);
+                          $refList = $inReplyTo;
+                          if(strcmp($params['parenttype'],'A')==0) {
+                            $qRef = $pfx . "." . $params['questionid'];
+                            $refList .= " " . $qRef;
+                          }
+                          $mailer->AddCustomHeader('References:'.$refList);
+                        }
+                        $mailer->MessageID=$msgID;
 			$mailer->Sender=qa_opt('from_email');
 			$mailer->From=(isset($user['email']) ? $user['email'] : qa_opt('from_email'));
 			$mailer->FromName=(isset($user['name']) ? $user['name'] : (isset($handle) ? $handle : qa_opt('site_title')));
